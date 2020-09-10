@@ -1,0 +1,19 @@
+{
+  "name": "sad-ghost-bot",
+  "version": "0.1.0",
+  "description": "server bot for Sad Ghost Town for Sad Ghosts - by 0nline.Dating",
+  "main": "bot.js",
+  "dependencies": {
+    "canvas": "^2.6.1",
+    "discord.js": "^12.3.1",
+    "node-pre-gyp": "^0.15.0",
+    "sequelize": "^6.3.5",
+    "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "0nline.Dating",
+  "license": "ISC"
+}
