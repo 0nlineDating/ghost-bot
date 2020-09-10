@@ -86,8 +86,8 @@ client.on('message', async (receivedMessage) => {
         const input = receivedMessage.content.slice(PREFIX.length).trim().split(' ');
         const command = input.shift();
         const commandArgs = input.join(' ');
+	    // These are the basic commands that come with tag management.
         if (command === 'addtag') {
-            // [delta]
             const splitArgs = commandArgs.split(' ');
             const tagName = splitArgs.shift().toLowerCase();
             const tagDescription = splitArgs.join(' ');
@@ -108,7 +108,6 @@ client.on('message', async (receivedMessage) => {
                 return message.reply('Something went wrong with adding a tag.');
             }
         } else if (command === 'tag') {
-            // [epsilon]
             const tagName = commandArgs;
 
             // equivalent to: SELECT * FROM tags WHERE name = 'tagName' LIMIT 1;
@@ -121,7 +120,6 @@ client.on('message', async (receivedMessage) => {
             return message.reply(`Could not find tag: ${tagName}`);            
         }
         else if (command === 'edittag') {
-            // [zeta]
             const splitArgs = commandArgs.split(' ');
             const tagName = splitArgs.shift();
             const tagDescription = splitArgs.join(' ');
@@ -133,7 +131,6 @@ client.on('message', async (receivedMessage) => {
             }
             return message.reply(`Could not find a tag with name ${tagName}.`);
         } else if (command === 'taginfo') {
-            // [theta]
             const tagName = commandArgs;
 
             // equivalent to: SELECT * FROM tags WHERE name = 'tagName' LIMIT 1;
@@ -143,7 +140,6 @@ client.on('message', async (receivedMessage) => {
             }
             return message.reply(`Could not find tag: ${tagName}`);
         } else if (command === 'showtags') {
-            // [lambda]
             // equivalent to: SELECT name FROM tags;
             const tagList = await Tags.findAll({ attributes: ['name'] });
             const tagString = tagList.map(t => t.name).join(', ') || 'No tags set.';
@@ -163,23 +159,27 @@ client.on('message', async (receivedMessage) => {
         }
     }
 
-    if (receivedMessage.mentions.has(client.user)) {
-        //send acknowledgement message
-        //receivedMessage.channel.send("Message received from: " + receivedMessage.author.toString() + ": " + receivedMessage.content)
-    }
+	// this is just because i thought it was funny, i'll be honest.
+	// the basic tags can't provide images, but custom commands can.
+	// if you want to add in more image responses, they can be written in just by copying this block.
     if (messageLower.includes("dickbutt")) {
-    // Provide a URL to a file
+	// Provide a URL to a file
     const webAttachment = new Discord.MessageAttachment('https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstyfelife.com%2Fwp-content%2Fuploads%2F2016%2F10%2Fdickbutt.png&f=1&nofb=1', "dickbuttlol.png");
     receivedMessage.channel.send(webAttachment);
     console.log(`Sent a dickbutt to ` + receivedMessage.channel.name.toString());
     }
+	//this is the part that parses every single message.
     if (receivedMessage) {
+	    // converts text to lowercase and removes punctuation and markup
+	    // this prevents keywords from being missed in the event that they are proceeded by a period or question mark
         const input = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+	    // this splits the message content into an array, where each word is its' own item in the array
         var commandArgs = input.split(' ');
         console.log('INPUT IS: ' + commandArgs + ' | Length is: ' + commandArgs.length);
         var i=0;
+	    // this gathers the length of the array and sets it to a variable (simplifies comparison)
         var end = commandArgs.length;
-        // [epsilon]
+	    //begins a loop through the array
         while (i < end) {
             console.log('i = ' + i);
             const tagName = commandArgs[i];
@@ -199,6 +199,8 @@ client.on('message', async (receivedMessage) => {
     }
     // This doesn't work yet. Eventually, it'll post an image when a secret word is said
     // the plan is to have it shuffle a set of secret words every week
+    // working with canvas is hard though, so right now it just throws an error for every instance of the word test.
+    // it's not an error that crashes the script, luckily.
     if (receivedMessage.content.includes(SecretWord)) {
         const channel = receivedMessage.channel;
 
