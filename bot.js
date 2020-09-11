@@ -163,6 +163,7 @@ client.on('message', async (receivedMessage) => {
             console.log('Lol no command given.');
         }
     }
+    const inputx = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
         // this is just because i thought it was funny, i'll be honest.
 	// the basic tags can't provide images, but custom commands can.
 	// if you want to add in more image responses, they can be written in just by copying this block.
@@ -173,6 +174,11 @@ client.on('message', async (receivedMessage) => {
     receivedMessage.channel.send(webAttachment);
     console.log(`Sent a dickbutt to ` + receivedMessage.channel.name.toString());
     }
+
+    if (inputx.includes("how ya doin sgb")) {
+        message.channel.send("SKREE-ONK");
+        console.log(`Dumb requested phrase sent to: ` + receivedMessage.channel.name.toString());
+        }
     // this is the part that parses every single message.
     if (receivedMessage) {
 	// converts text to lowercase and removes punctuation and markup
