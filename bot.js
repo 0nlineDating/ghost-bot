@@ -41,13 +41,28 @@ const Tags = sequelize.define('tags', {
 	},
 });
 
-/*
+const Reacts = sequelize.define('reacts', {
+	name: {
+		type: Sequelize.STRING,
+		unique: true,
+	},
+	description: Sequelize.TEXT,
+	username: Sequelize.STRING,
+	usage_count: {
+		type: Sequelize.INTEGER,
+		defaultValue: 0,
+		allowNull: false,
+	},
+});
+
+
 // This only needs to be on when it's first initialized.
 // I ran into issues with the sync clearing the database on hard resets
-client.once('ready', () => {
- Tags.sync();
-})
-*/
+//client.once('ready', () => {
+// Reacts.sync();
+// Tags.sync();
+//})
+
 client.on('ready', () => {
 
     client.user.setActivity("with my butt.", {type: "PLAYING"});
@@ -108,6 +123,30 @@ client.on('message', async (receivedMessage) => {
                 }
                 return message.reply('Something went wrong with adding a tag.');
             }
+        } else if (command === 'addreact') {
+            // [delta]
+            const splitArgs = commandArgs.split(' ');
+            const reactName = splitArgs.shift().toLowerCase();
+            const reactDescriptionIn = splitArgs.join(' ');
+            const reactDescriptionS1 = reactDescriptionIn.split(':');
+            const reactDescriptionS2 = reactDescriptionS1.pop();
+            const reactDescription = reactDescriptionS2.substring(0, reactDescriptionS2.length - 1);
+
+            try{
+                // equivalent to: INSERT INTO tage (name, description, username) values (?, ?, ?);
+                const react = await Reacts.create({
+                    name: reactName,
+                    description: reactDescription,
+                    username: message.author.username,
+                });
+                return message.reply(`React ${react.name} added.`);
+            }
+            catch (e) {
+                if (e.name === 'SequalizeUniqueConstraintError') {
+                    return message.reply('That react already exists.');
+                }
+                return message.reply('Something went wrong with adding a tag.');
+            }
         } else if (command === 'tag') {
             // [epsilon]
             const tagName = commandArgs;
@@ -120,8 +159,7 @@ client.on('message', async (receivedMessage) => {
                 return message.channel.send(tag.get('description'));
             }
             return message.reply(`Could not find tag: ${tagName}`);            
-        }
-        else if (command === 'edittag') {
+        } else if (command === 'edittag') {
             // [zeta]
             const splitArgs = commandArgs.split(' ');
             const tagName = splitArgs.shift();
@@ -158,8 +196,20 @@ client.on('message', async (receivedMessage) => {
 
             return message.reply('Tag deleted.');
         } else if (command === 'help'){
-            return message.channel.send("```Prefix is set to: + \n\n\nAvailable commands:\n\n1) addtag <keyword> <response>\n----Creates a custom bot response. I am always listening.\n\n2) tag\n----Manually posts a tag response, pretty useless, but exists.\n\n3) edittag <keyword> <response>\n----Allows you to edit a tag\n\n4) showtags\n----Lists all of the tags, this shit could get verbose, so try to use this only in the kindergarden.\n\n5) removetag <keyword>\n----This removes the tag entirely, might become staff locked eventually.```")
-        } else {
+            return message.channel.send("```Prefix is set to: + \n\n\nAvailable commands:\n\n1) addtag <keyword> <response>\n----Creates a custom bot response. I am always listening.\n\n2) tag\n----Manually posts a tag response, pretty useless, but exists.\n\n3) edittag <keyword> <response>\n----Allows you to edit a tag\n\n4) showtags\n----Lists all of the tags, this shit could get verbose, so try to use this only in the kindergarden.\n\n5) removetag <keyword>\n----This removes the tag entirely, might become staff locked eventually.\n\n6) addreact <keyword> <ONE emote>\n----Creates a custom bot response for an emote. When I see a word in a message, I react to it with the emote I know.\n\n7) showreacts\n----Lists all of the reaction tags, this shit could get verbose, so try to use this only in the kindergarden.\n\n8) removereact <keyword>\n----This removes the reaction tag entirely, might become staff locked eventually.```")
+        } else if (command === 'showreacts'){
+            const reactList = await Reacts.findAll({ attributes: ['name'] });
+            const reactString = reactList.map(t => t.name).join(', ') || 'No reacts set.';
+            return message.channel.send(`List of reacts: ${reactString}`);
+        } else if (command === 'removereact'){
+             // [mu]
+            const reactName = commandArgs;
+            // equivalent to: DELETE from tags WHERE name = ?;
+            const rowCount = await Reacts.destroy({ where: { name: reactName } });
+            if (!rowCount) return message.reply('That react did not exist.');
+            
+            return message.reply('react deleted.');
+        }else {
             console.log('Lol no command given.');
         }
     }
@@ -179,6 +229,8 @@ client.on('message', async (receivedMessage) => {
         message.channel.send("SKREE-ONK");
         console.log(`Dumb requested phrase sent to: ` + receivedMessage.channel.name.toString());
         }
+
+
     // this is the part that parses every single message.
     if (receivedMessage) {
 	// converts text to lowercase and removes punctuation and markup
@@ -207,30 +259,33 @@ client.on('message', async (receivedMessage) => {
             }
             i++;
         } while (i < end);
-    }
-    // This doesn't work yet. Eventually, it'll post an image when a secret word is said
-    // the plan is to have it shuffle a set of secret words every week
-    // working with canvas is hard though, so right now it just throws an error for every instance of the word test.
-    // it's not an error that crashes the script, luckily.
-    /*if (receivedMessage.content.includes(SecretWord)) {
-        const channel = receivedMessage.channel;
+    }       
 
-        const canvas = Canvas.createCanvas(750,588);
-        const ctx = canvas.getContext('2d');
+    //Reaction DB test
+    if (receivedMessage) {
+            const input = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+            var commandArgs = input.split(' ');
+            console.log('INPUT IS: ' + commandArgs + ' | Length is: ' + commandArgs.length);
+            let i=0;
+            var end = commandArgs.length;
+            do {
+                console.log('i = ' + i);
+                const reactName = commandArgs[i];
+    
+                const react = await Reacts.findOne({ where: { name: reactName } });
+                if (react) {
+                    react.increment('usage_count');
+                    console.log(`Posted: ` + react.get('description') + ` as reaction`);
+                    receivedMessage.react(react.get('description'));
 
-        const background = await Canvas.loadImage('/home/pi/DiscordBot/images/secretword.png');
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.strokeRect(0,0,canvas.width,canvas.height);
-
-        ctx.font = applyText(canvas, member.displayName);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(member.displayName, 287, 320);
-
-        const attachment = new Discord.MessageAttachment(canvas.toBuffer(), 'secret-word.png');
-
-        channel.send(`YOU SAID THE SECRET WORD, ${member}!`, attachment);
-    }*/
+                }
+                else{
+                    console.log(`Could not find react: ${reactName}`);
+                }
+                i++;
+            } while (i < end);
+        }       
+    
 })
 
 
@@ -238,6 +293,6 @@ client.on('message', async (receivedMessage) => {
 //Get your bot's secret token from:
 // https://discordapp.com/developers/applications/
 // Click on your application -> Bot -> Token -> "Click hto reveal token"
-bot_secret_token = " ";
+bot_secret_token = "";
 
 client.login(bot_secret_token);
