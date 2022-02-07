@@ -11,6 +11,8 @@ I ran into issues with the sync code overwriting the database on a hard reset, s
 
 ToDo:
 
+-Add Birthday database/scheduled check/posting feature
+
 -Separate functions into different script files (prefix; custom responses; global message parse [in that order])
 
 -Declare global variables for items that are defined multiple times.

@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const Sequelize = require('sequelize');
-//const Canvas = require('canvas');
+const Canvas = require('canvas');
 const { CITEXT } = require('sequelize');
 const { createContext } = require('vm');
 const client = new Discord.Client();
@@ -72,7 +72,7 @@ cron.schedule('0 00 * * * *', () => {
             setTimeout(() => {
                 var msgCache = message.reactions.cache;
                 console.log(message.content);
-                if (!msgCache.get('⭐')) { console.log("no stars, I wonder why.") }
+                if (!msgCache.get('⭐')) {console.log("no stars, I wonder why.") }
                 else {
                     if (msgCache.get('⭐').count > 3 && !msgCache.get('✔️')) {
                         console.log('We are sending a tweet now lol');
@@ -270,126 +270,95 @@ client.on('message', async (receivedMessage) => {
             if (!rowCount) return message.reply('That react did not exist.');
 
             return message.reply('react deleted.');
-        }
+        } 
         /**
          * 
          * test of DM feature
          * 
          */
-        else if (command === 'asktrans') {
-            if (message.channel.type === 'dm') {
-                //var askchan = client.channels.cache.get("931925449561481256");
-                //askchan.send(commandArgs);
-                client.channel.fetch("931925449561481256").threads.create({
-                    name: commandArgs.substring(0, 20),
-                    autoArchiveDuration: 1440,
-                    reason: commandArgs.substring(0, 20),
-                });
-                var activeThreads = client.channel.fetch("931925449561481256").threads().fetchActive();
-                activeThreads[0].send(commandArgs);
-                
-                //then(threadChannel => threadChannel.send(commandArgs))
-                //    .catch(console.error);
-            }
+        else if (command === 'asktrans') { 
+            if(message.channel.type === 'dm'){
+                var askchan = client.channels.cache.get("931925449561481256");
+                askchan.send(commandArgs);
+            } else{} 
+        } else {
+            console.log('Lol no command given.');
         }
-    } else {
-        console.log('Lol no command given.');
     }
-const inputx = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-// this is just because i thought it was funny, i'll be honest.
-// the basic tags can't provide images, but custom commands can.
-// if you want to add in more image responses, they can be written in just by copying this block.
-if (messageLower.includes("dickbutt")) {
-    // Provide a URL to a file
-    // I should just store this locally.
-    const webAttachment = new Discord.MessageAttachment('https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstyfelife.com%2Fwp-content%2Fuploads%2F2016%2F10%2Fdickbutt.png&f=1&nofb=1', "dickbuttlol.png");
-    receivedMessage.channel.send(webAttachment);
-    console.log(`Sent a dickbutt to ` + receivedMessage.channel.name.toString());
-}
+    const inputx = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+    // this is just because i thought it was funny, i'll be honest.
+    // the basic tags can't provide images, but custom commands can.
+    // if you want to add in more image responses, they can be written in just by copying this block.
+    if (messageLower.includes("dickbutt")) {
+        // Provide a URL to a file
+        // I should just store this locally.
+        const webAttachment = new Discord.MessageAttachment('https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstyfelife.com%2Fwp-content%2Fuploads%2F2016%2F10%2Fdickbutt.png&f=1&nofb=1', "dickbuttlol.png");
+        receivedMessage.channel.send(webAttachment);
+        console.log(`Sent a dickbutt to ` + receivedMessage.channel.name.toString());
+    }
 
-if (inputx.includes("how ya doin sgb")) {
-    message.channel.send("SKREE-ONK");
-    console.log(`Dumb requested phrase sent to: ` + receivedMessage.channel.name.toString());
-}
+    if (inputx.includes("how ya doin sgb")) {
+        message.channel.send("SKREE-ONK");
+        console.log(`Dumb requested phrase sent to: ` + receivedMessage.channel.name.toString());
+    }
 
 
-// this is the part that parses every single message.
-if (!messageLower.startsWith(PREFIX)) {
-    // converts text to lowercase and removes punctuation and markup
-    // this prevents keywords from being missed in the event that they are proceeded by a period or question mark
-    const input = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-    // this splits the message content into an array, where each word is its' own item in the array
-    var commandArgs = input.split(' ');
-    console.log('INPUT IS: ' + commandArgs + ' | Length is: ' + commandArgs.length);
-    let i = 0;
-    // this gathers the length of the array and sets it to a variable (simplifies comparison)
-    var end = commandArgs.length;
-    // begins a loop through the array
-    do {
-        console.log('i = ' + i);
-        const tagName = commandArgs[i];
+    // this is the part that parses every single message.
+    if (receivedMessage) {
+        // converts text to lowercase and removes punctuation and markup
+        // this prevents keywords from being missed in the event that they are proceeded by a period or question mark
+        const input = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+        // this splits the message content into an array, where each word is its' own item in the array
+        var commandArgs = input.split(' ');
+        console.log('INPUT IS: ' + commandArgs + ' | Length is: ' + commandArgs.length);
+        let i = 0;
+        // this gathers the length of the array and sets it to a variable (simplifies comparison)
+        var end = commandArgs.length;
+        // begins a loop through the array
+        do {
+            console.log('i = ' + i);
+            const tagName = commandArgs[i];
 
-        // equivalent to: SELECT * FROM tags WHERE name = 'tagName' LIMIT 1;
-        const tag = await Tags.findOne({ where: { name: tagName } });
-        if (tag) {
-            // equivalent to: UPDATE tags SET usage_count = usage_count + 1 WHERE name = 'tagName';
-            tag.increment('usage_count');
-            message.channel.send(tag.get('description'));
-        }
-        else {
-            console.log(`Could not find tag: ${tagName}`);
-        }
-        i++;
-    } while (i < end);
-}
+            // equivalent to: SELECT * FROM tags WHERE name = 'tagName' LIMIT 1;
+            const tag = await Tags.findOne({ where: { name: tagName } });
+            if (tag) {
+                // equivalent to: UPDATE tags SET usage_count = usage_count + 1 WHERE name = 'tagName';
+                tag.increment('usage_count');
+                message.channel.send(tag.get('description'));
+            }
+            else {
+                console.log(`Could not find tag: ${tagName}`);
+            }
+            i++;
+        } while (i < end);
+    }
 
-//Reaction DB test
-if (receivedMessage) {
-    const input = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-    var commandArgs = input.split(' ');
-    console.log('INPUT IS: ' + commandArgs + ' | Length is: ' + commandArgs.length);
-    let i = 0;
-    var end = commandArgs.length;
-    do {
-        console.log('i = ' + i);
-        const reactName = commandArgs[i];
+    //Reaction DB test
+    if (receivedMessage) {
+        const input = receivedMessage.content.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+        var commandArgs = input.split(' ');
+        console.log('INPUT IS: ' + commandArgs + ' | Length is: ' + commandArgs.length);
+        let i = 0;
+        var end = commandArgs.length;
+        do {
+            console.log('i = ' + i);
+            const reactName = commandArgs[i];
 
-        const react = await Reacts.findOne({ where: { name: reactName } });
-        if (react) {
-            react.increment('usage_count');
-            console.log(`Posted: ` + react.get('description') + ` as reaction`);
-            receivedMessage.react(react.get('description'));
+            const react = await Reacts.findOne({ where: { name: reactName } });
+            if (react) {
+                react.increment('usage_count');
+                console.log(`Posted: ` + react.get('description') + ` as reaction`);
+                receivedMessage.react(react.get('description'));
 
-        }
-        else {
-            console.log(`Could not find react: ${reactName}`);
-        }
-        i++;
-    } while (i < end);
-}
+            }
+            else {
+                console.log(`Could not find react: ${reactName}`);
+            }
+            i++;
+        } while (i < end);
+    }
 
 })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
