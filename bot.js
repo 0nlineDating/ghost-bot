@@ -396,6 +396,6 @@ if (receivedMessage) {
 //Get your bot's secret token from:
 // https://discordapp.com/developers/applications/
 // Click on your application -> Bot -> Token -> "Click hto reveal token"
-bot_secret_token = "NzUzMTA1OTgyNjQ5MDA4MjQ4.X1hWmg.8gqL4AQiZKACEDrD8w4dvI9oOQ8";
+bot_secret_token = "";
 
 client.login(bot_secret_token);
