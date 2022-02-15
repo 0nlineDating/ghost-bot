@@ -16,3 +16,5 @@ ToDo:
 -Separate functions into different script files (prefix; custom responses; global message parse [in that order])
 
 -Declare global variables for items that are defined multiple times.
+
+-Connect to Spotify API to aggregate spotify links in #music into a playlist viewable on Spotify
