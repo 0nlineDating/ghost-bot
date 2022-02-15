@@ -1,10 +1,10 @@
 const {TwitterApi} = require('twitter-api-v2');
 
 const client = new TwitterApi({
-    appKey: 'cfcwZQmGjU4jpzvF6lyAIf5AX' ,  
-    appSecret: 'hvHucdZAncLY7pny8Jwc4SiT1wwCWA2hkFRsx0ALFXT6u4GhUF',  
-    accessToken: '1479326819291516928-GTjNpBDWwNCL48QBIxp3vt4DAENYol',  
-    accessSecret: '38hQ0EtLOnu23ELfFZqldxA53ee3jFBAbS27kMLe2CDDX'  
+    appKey: '' ,  
+    appSecret: '',  
+    accessToken: '',  
+    accessSecret: ''
 });
 
 function out(message) {
